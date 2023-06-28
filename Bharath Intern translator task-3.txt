@@ -1,0 +1,63 @@
+import os
+import nltk
+
+# Download the 'punkt' resource
+nltk.download('punkt')
+
+def parse_resume(resume_text, job_keywords):
+    # Tokenize the resume text into individual words
+    resume_tokens = nltk.word_tokenize(resume_text.lower())
+
+    # Create a frequency distribution of the resume words
+    resume_freq_dist = nltk.FreqDist(resume_tokens)
+
+    # Initialize a dictionary to store the keyword matches
+    keyword_matches = {}
+
+    # Iterate over the job keywords
+    for keyword in job_keywords:
+        # Check if the keyword is present in the resume text
+        if keyword in resume_freq_dist:
+            # Store the frequency of the keyword in the resume
+            keyword_matches[keyword] = resume_freq_dist[keyword]
+
+    return keyword_matches
+
+# Define the job keywords
+job_keywords = ['python', 'machine learning', 'data analysis']
+
+# Path to the folder containing resumes
+resume_folder = r'C:\Users\HP\Desktop\python_project'
+
+# Initialize variables to keep track of the best candidate
+best_candidate = None
+best_score = 0
+
+# Iterate over the files in the resume folder
+for filename in os.listdir(resume_folder):
+    if filename.endswith('.txt'):  # Assuming all resumes are text files
+        # Read the resume text from the file
+        file_path = os.path.join(resume_folder, filename)
+        with open(file_path, 'r') as file:
+            resume_text = file.read()
+
+        # Parse the resume and get the keyword matches
+        matches = parse_resume(resume_text, job_keywords)
+
+        # Calculate the score for the candidate
+        score = sum(matches.values())
+
+        # Print the filename and keyword matches
+        print(f"Resume: {os.path.splitext(filename)[0]}")
+        for keyword, frequency in matches.items():
+            print(f"{keyword}: {frequency} matches")
+        print(f"Score: {score}")
+        print()
+
+        # Check if the candidate has a higher score than the current best candidate
+        if score > best_score:
+            best_candidate = os.path.splitext(filename)[0]
+            best_score = score
+
+# Print the best candidate
+print(f"The best candidate for the role is: {best_candidate}")
